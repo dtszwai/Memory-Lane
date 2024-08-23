@@ -252,7 +252,7 @@ export default function CreateLogForm({ initialData }: CreateLogFormProps) {
               control={control}
               name={"imageUri"}
               render={({ field: { onChange } }) => (
-                <View style={{ flex: 1 }}>
+                <View style={styles.button}>
                   <Button.ImageInput onChange={onChange} />
                 </View>
               )}
@@ -261,7 +261,7 @@ export default function CreateLogForm({ initialData }: CreateLogFormProps) {
               control={control}
               name={"location"}
               render={({ field: { value, onChange } }) => (
-                <View style={{ flex: 1 }}>
+                <View style={styles.button}>
                   <Button.LocationInput
                     initialLocation={value}
                     onChange={onChange}
@@ -273,7 +273,7 @@ export default function CreateLogForm({ initialData }: CreateLogFormProps) {
               control={control}
               name={"imageUri"}
               render={({ field: { onChange } }) => (
-                <View style={{ flex: 1 }}>
+                <View style={styles.button}>
                   <Button.CameraInput onChange={onChange} />
                 </View>
               )}
@@ -282,7 +282,7 @@ export default function CreateLogForm({ initialData }: CreateLogFormProps) {
               control={control}
               name={"weather"}
               render={({ field: { value, onChange } }) => (
-                <View style={{ flex: 1 }}>
+                <View style={styles.button}>
                   <Button.WeatherInput
                     weather={value}
                     onChange={onChange}
@@ -296,7 +296,7 @@ export default function CreateLogForm({ initialData }: CreateLogFormProps) {
               name={"mood"}
               render={({ field: { value, onChange } }) => {
                 return (
-                  <View style={{ flex: 1 }}>
+                  <View style={styles.button}>
                     <Button.MoodInput mood={value} onChange={onChange} />
                   </View>
                 );
@@ -325,8 +325,9 @@ const styles = StyleSheet.create({
   },
   buttonGroup: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignContent: "center",
-    flexShrink: 0,
+    justifyContent: "space-around",
+  },
+  button: {
+    marginHorizontal: 10,
   },
 });

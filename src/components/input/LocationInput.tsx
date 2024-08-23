@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Alert, useColorScheme } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useLocation } from "@/src/hooks";
+import { Alert, StyleSheet } from "react-native";
+import { useLocation, useMenu } from "@/src/hooks";
 import { Log } from "@/src/constants";
 import MapLocator from "./MapLocator";
+import { IconButton, Menu } from "react-native-paper";
 
 type LocationInputProps = {
   initialLocation?: Log["location"];
@@ -17,8 +17,7 @@ export default function LocationInput({
   const { location, errorMsg, isLoading, getCurrentLocation, setLocation } =
     useLocation(initialLocation);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "white" : "black";
+  const { isMenuOpen, closeMenu, openMenu } = useMenu();
 
   useEffect(() => {
     onChange(location);
@@ -28,7 +27,7 @@ export default function LocationInput({
     errorMsg && Alert.alert("Error", errorMsg);
   }, [errorMsg]);
 
-  const handleSelect = async (key: string) => {
+  const handleSelect = async (key: "Current" | "Manual" | "Remove") => {
     switch (key) {
       case "Current":
         await getCurrentLocation();
@@ -42,50 +41,43 @@ export default function LocationInput({
       default:
         Alert.alert("Error", "Invalid menu option selected");
     }
+    closeMenu();
   };
 
   return (
     <>
-      {/* <Menu
-        placement="top"
-        selectionMode="single"
-        className="flex-row"
-        // @ts-ignore
-        onSelectionChange={({ currentKey }) => handleSelect(currentKey)}
-        trigger={({ ...triggerProps }) => {
-          return (
-            <Button {...triggerProps} className="bg-current">
-              {isLoading ? (
-                <ButtonSpinner />
-              ) : (
-                <MaterialCommunityIcons
-                  name={location ? "map-check" : "map-plus"}
-                  size={24}
-                  color={iconColor}
-                />
-              )}
-            </Button>
-          );
-        }}
+      <Menu
+        visible={isMenuOpen}
+        onDismiss={closeMenu}
+        anchor={
+          <IconButton
+            icon={location ? "map-check" : "map-plus"}
+            onPress={openMenu}
+            loading={isLoading}
+          />
+        }
+        anchorPosition="top"
+        contentStyle={{ flexDirection: "row" }}
       >
-        <MenuItem key={"Current"} textValue={"Current"} className="min-w-0">
-          <MaterialCommunityIcons
-            name="crosshairs-gps"
-            size={24}
-            color={iconColor}
-          />
-        </MenuItem>
-        <MenuItem key={"Manual"} textValue={"Manual"} className="min-w-0">
-          <MaterialCommunityIcons
-            name="map-search"
-            size={24}
-            color={iconColor}
-          />
-        </MenuItem>
-        <MenuItem key={"Remove"} textValue={"Remove"} className="min-w-0">
-          <MenuItemLabel size="sm">❌</MenuItemLabel>
-        </MenuItem>
-      </Menu> */}
+        <Menu.Item
+          onPress={() => handleSelect("Current")}
+          title="📍"
+          style={styles.menuItem}
+          contentStyle={styles.menuItem}
+        />
+        <Menu.Item
+          onPress={() => handleSelect("Manual")}
+          title="🗺️"
+          style={styles.menuItem}
+          contentStyle={styles.menuItem}
+        />
+        <Menu.Item
+          onPress={() => handleSelect("Remove")}
+          title="❌"
+          style={styles.menuItem}
+          contentStyle={styles.menuItem}
+        />
+      </Menu>
       {isModalVisible && (
         <MapLocator
           isVisible={isModalVisible}
@@ -97,3 +89,13 @@ export default function LocationInput({
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  menuItem: {
+    alignItems: "center",
+    maxWidth: 30,
+    minWidth: 30,
+    height: 30,
+    paddingHorizontal: 0,
+  },
+});

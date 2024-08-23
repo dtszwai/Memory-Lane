@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Alert, useColorScheme } from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Alert, StyleSheet } from "react-native";
 import { Mood, moodMap, moods } from "@/src/constants";
+import { useMenu } from "@/src/hooks";
+import { IconButton, Menu, Text } from "react-native-paper";
 
 type MoodInputProps = {
   mood?: Mood;
@@ -10,54 +11,69 @@ type MoodInputProps = {
 
 export default function MoodInput({ mood, onChange }: MoodInputProps) {
   const [selected, setSelected] = useState<Mood | undefined>(mood);
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "white" : "black";
+  const { isMenuOpen, closeMenu, openMenu } = useMenu();
 
   useEffect(() => {
     onChange(selected);
   }, [selected, onChange]);
 
-  const handleSelect = async (key: string) => {
-    if (key === "Remove") {
-      setSelected(undefined);
-    } else if (moods.includes(key as Mood)) {
-      setSelected(key as Mood);
-    } else {
-      Alert.alert("Error", "Invalid menu option selected");
+  const handleSelect = async (key: Mood | "Remove") => {
+    switch (key) {
+      case "Remove":
+        setSelected(undefined);
+        break;
+      default:
+        if (moods.includes(key)) {
+          setSelected(key);
+        } else {
+          Alert.alert("Error", "Invalid Mood selected");
+        }
     }
+    closeMenu();
   };
 
   return (
-    <></>
-    // <Menu
-    //   placement="top"
-    //   selectionMode="single"
-    //   className="flex-row"
-    //   // @ts-ignore - currentKey is not in the type definition
-    //   onSelectionChange={({ currentKey }) => handleSelect(currentKey)}
-    //   trigger={({ ...triggerProps }) => {
-    //     return (
-    //       <Button {...triggerProps} className="bg-current">
-    //         {selected ? (
-    //           <ButtonText size="lg">{moodMap[selected]}</ButtonText>
-    //         ) : (
-    //           <MaterialIcons
-    //             name="face-retouching-natural"
-    //             size={24}
-    //             color={iconColor}
-    //           />
-    //         )}
-    //       </Button>
-    //     );
-    //   }}>
-    //   {moods.map((mood) => (
-    //     <MenuItem key={mood} textValue={mood} className="min-w-0">
-    //       <MenuItemLabel size="sm">{moodMap[mood]}</MenuItemLabel>
-    //     </MenuItem>
-    //   ))}
-    //   <MenuItem key={"Remove"} textValue={"Remove"} className="min-w-0">
-    //     <MenuItemLabel size="sm">❌</MenuItemLabel>
-    //   </MenuItem>
-    // </Menu>
+    <Menu
+      visible={isMenuOpen}
+      onDismiss={closeMenu}
+      anchor={
+        <IconButton
+          icon={
+            selected
+              ? () => <Text style={{ fontSize: 24 }}>{moodMap[selected]}</Text>
+              : "face-man-shimmer"
+          }
+          onPress={openMenu}
+        />
+      }
+      anchorPosition="top"
+      contentStyle={{ flexDirection: "row" }}
+    >
+      {moods.map((mood) => (
+        <Menu.Item
+          key={mood}
+          onPress={() => handleSelect(mood)}
+          title={moodMap[mood]}
+          style={styles.menuItem}
+          contentStyle={styles.menuItem}
+        />
+      ))}
+      <Menu.Item
+        onPress={() => handleSelect("Remove")}
+        title="❌"
+        style={styles.menuItem}
+        contentStyle={styles.menuItem}
+      />
+    </Menu>
   );
 }
+
+const styles = StyleSheet.create({
+  menuItem: {
+    alignItems: "center",
+    maxWidth: 30,
+    minWidth: 30,
+    height: 30,
+    paddingHorizontal: 0,
+  },
+});

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Alert, useColorScheme } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import { LatLng } from "react-native-maps";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Weather, weatherMap, simpleWeathers } from "@/src/constants";
-import { useLocation } from "@/src/hooks";
+import { useLocation, useMenu } from "@/src/hooks";
 import { getWeather } from "@/src/apis";
+import { IconButton, Menu, Text } from "react-native-paper";
 
 type WeatherInputProps = {
   weather?: Weather;
@@ -20,8 +20,7 @@ export default function WeatherInput({
   const [selected, setSelected] = useState<Weather | undefined>(weather);
   const [isLoading, setIsLoading] = useState(false);
   const { getCurrentLocation } = useLocation();
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "white" : "black";
+  const { isMenuOpen, closeMenu, openMenu } = useMenu();
 
   useEffect(() => {
     onChange(selected);
@@ -33,10 +32,11 @@ export default function WeatherInput({
       const response = await getWeather(location);
       const weather = response.weather[0].main as Weather;
       setSelected(weather);
-      setIsLoading(false);
     } catch (error) {
       Alert.alert("Error", "Failed to get weather data");
+    } finally {
       setIsLoading(false);
+      closeMenu();
     }
   };
 
@@ -54,57 +54,77 @@ export default function WeatherInput({
     fetchWeather(location);
   };
 
-  const handleSelect = async (key: Weather | "Current" | "Remove") => {
-    if (key === "Current") {
-      handleGetWeather();
-    } else if (key === "Remove") {
-      setSelected(undefined);
-    } else {
-      setSelected(key);
+  const handleSelect = async (
+    key: (typeof simpleWeathers)[number] | "Current" | "Remove",
+  ) => {
+    switch (key) {
+      case "Current":
+        handleGetWeather();
+        break;
+      case "Remove":
+        setSelected(undefined);
+        break;
+      default:
+        if (simpleWeathers.includes(key)) {
+          setSelected(key);
+        } else {
+          Alert.alert("Error", "Invalid Weather selected");
+        }
     }
+    closeMenu();
   };
 
   return (
-    <></>
-    // <Menu
-    //   placement="top"
-    //   selectionMode="single"
-    //   className="flex-row"
-    //   // @ts-ignore - currentKey is not in the type definition
-    //   onSelectionChange={({ currentKey }) => handleSelect(currentKey)}
-    //   trigger={({ ...triggerProps }) => {
-    //     return (
-    //       <Button {...triggerProps} className="bg-current">
-    //         {isLoading ? (
-    //           <ButtonSpinner />
-    //         ) : selected ? (
-    //           <ButtonText size="lg">{weatherMap[selected]}</ButtonText>
-    //         ) : (
-    //           <MaterialCommunityIcons
-    //             name="cloud-search"
-    //             size={24}
-    //             color={iconColor}
-    //           />
-    //         )}
-    //       </Button>
-    //     );
-    //   }}
-    // >
-    //   <MenuItem key={"Current"} textValue={"Current"} className="min-w-0">
-    //     <MaterialCommunityIcons
-    //       name="crosshairs-gps"
-    //       size={24}
-    //       color={iconColor}
-    //     />
-    //   </MenuItem>
-    //   {simpleWeathers.map((weather) => (
-    //     <MenuItem key={weather} textValue={weather} className="min-w-0">
-    //       <MenuItemLabel size="sm">{weatherMap[weather]}</MenuItemLabel>
-    //     </MenuItem>
-    //   ))}
-    //   <MenuItem key={"Remove"} textValue={"Remove"} className="min-w-0">
-    //     <MenuItemLabel size="sm">❌</MenuItemLabel>
-    //   </MenuItem>
-    // </Menu>
+    <Menu
+      visible={isMenuOpen}
+      onDismiss={closeMenu}
+      anchor={
+        <IconButton
+          icon={
+            selected
+              ? () => (
+                  <Text style={{ fontSize: 24 }}>{weatherMap[selected]}</Text>
+                )
+              : "cloud-search"
+          }
+          onPress={openMenu}
+          loading={isLoading}
+        />
+      }
+      anchorPosition="top"
+      contentStyle={{ flexDirection: "row" }}
+    >
+      <Menu.Item
+        onPress={() => handleSelect("Current")}
+        title="📍"
+        style={styles.menuItem}
+        contentStyle={styles.menuItem}
+      />
+      {simpleWeathers.map((weather) => (
+        <Menu.Item
+          key={weather}
+          onPress={() => handleSelect(weather)}
+          title={weatherMap[weather]}
+          style={styles.menuItem}
+          contentStyle={styles.menuItem}
+        />
+      ))}
+      <Menu.Item
+        onPress={() => handleSelect("Remove")}
+        title="❌"
+        style={styles.menuItem}
+        contentStyle={styles.menuItem}
+      />
+    </Menu>
   );
 }
+
+const styles = StyleSheet.create({
+  menuItem: {
+    alignItems: "center",
+    maxWidth: 30,
+    minWidth: 30,
+    height: 30,
+    paddingHorizontal: 0,
+  },
+});

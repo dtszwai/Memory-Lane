@@ -1,13 +1,10 @@
-import { useColorScheme } from "react-native";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { IconButton } from "react-native-paper";
 import { useImage } from "@/src/hooks";
 
 type ImageInputProps = { onChange: (imageUri: string) => void };
 
 export default function ImageInput({ onChange }: ImageInputProps) {
   const { selectImage } = useImage();
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "white" : "black";
 
   const handleImage = async () => {
     const image = await selectImage();
@@ -16,14 +13,5 @@ export default function ImageInput({ onChange }: ImageInputProps) {
     }
   };
 
-  return (
-    <></>
-    // <Button
-    //   className="bg-current"
-    //   onPress={handleImage}
-    //   accessibilityLabel="Select an image"
-    //   accessibilityRole="button">
-    //   <FontAwesome5 name="image" size={24} color={iconColor} />
-    // </Button>
-  );
+  return <IconButton icon="image" onPress={handleImage} />;
 }

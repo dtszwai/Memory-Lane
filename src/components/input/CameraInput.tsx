@@ -1,6 +1,4 @@
-import React from "react";
-import { useColorScheme } from "react-native";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { IconButton } from "react-native-paper";
 import { useImage } from "@/src/hooks";
 
 type CameraInputProps = {
@@ -9,8 +7,6 @@ type CameraInputProps = {
 
 export default function CameraInput({ onChange }: CameraInputProps) {
   const { takeImage } = useImage();
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "white" : "black";
 
   const handleCamera = async () => {
     const image = await takeImage();
@@ -19,10 +15,5 @@ export default function CameraInput({ onChange }: CameraInputProps) {
     }
   };
 
-  return (
-    <></>
-    // <Button className="bg-current" onPress={handleCamera}>
-    //   <FontAwesome5 name="camera" size={24} color={iconColor} />
-    // </Button>
-  );
+  return <IconButton icon="camera" onPress={handleCamera} />;
 }
