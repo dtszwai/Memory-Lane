@@ -1,18 +1,34 @@
-import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
-import { Text, View } from '@/components/Themed';
+import { router, Stack } from "expo-router";
+import { View, StyleSheet } from "react-native";
+import { Button, IconButton, Text, Title, useTheme } from "react-native-paper";
 
 export default function NotFoundScreen() {
+  const { colors } = useTheme();
+
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
+      <Stack.Screen
+        options={{
+          title: "Not Found",
+          headerLeft: () => (
+            <IconButton icon="arrow-left" onPress={() => router.back()} />
+          ),
+        }}
+      />
       <View style={styles.container}>
-        <Text style={styles.title}>This screen doesn't exist.</Text>
-
-        <Link href="/" style={styles.link}>
-          <Text style={styles.linkText}>Go to home screen!</Text>
-        </Link>
+        <Title>Oops!</Title>
+        <Text style={[styles.text, { color: colors.primary }]}>
+          We can't find what you're looking for.
+        </Text>
+        <Button
+          icon="home"
+          mode="contained"
+          onPress={() => router.replace("/")}
+          style={styles.button}
+          buttonColor={colors.primary}
+        >
+          Go to Home
+        </Button>
       </View>
     </>
   );
@@ -21,20 +37,17 @@ export default function NotFoundScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
-  title: {
+  text: {
     fontSize: 20,
-    fontWeight: 'bold',
+    marginVertical: 20,
+    textAlign: "center",
   },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-  linkText: {
-    fontSize: 14,
-    color: '#2e78b7',
+  button: {
+    marginTop: 20,
+    paddingHorizontal: 20,
   },
 });
