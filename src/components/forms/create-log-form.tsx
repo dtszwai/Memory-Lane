@@ -62,10 +62,11 @@ export default function CreateLogForm({ initialData }: CreateLogFormProps) {
     },
   );
 
-  const { control, handleSubmit, watch, reset, resetField } = useForm<Log>({
-    resolver: zodResolver(formSchema),
-    defaultValues,
-  });
+  const { control, handleSubmit, watch, reset, resetField, setValue } =
+    useForm<Log>({
+      resolver: zodResolver(formSchema),
+      defaultValues,
+    });
 
   useEffect(() => {
     navigation.setOptions({
@@ -159,6 +160,15 @@ export default function CreateLogForm({ initialData }: CreateLogFormProps) {
     }
   };
 
+  const concatContent = (text: string) => {
+    const currentValue = watch("content");
+
+    if (currentValue) {
+      text = "\n\n" + text;
+    }
+    setValue("content", currentValue + text);
+  };
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -240,6 +250,16 @@ export default function CreateLogForm({ initialData }: CreateLogFormProps) {
                       onPress={handleRemoveImage}
                       style={styles.removeIcon}
                     />
+                    <View
+                      style={{ position: "absolute", bottom: 10, right: 10 }}
+                    >
+                      <Button.NarrativeInput
+                        onChange={concatContent}
+                        location={watch().location?.fullAddress}
+                        date={watch().date}
+                        imageUrl={value}
+                      />
+                    </View>
                   </View>
                 ) : (
                   <></>

@@ -7,3 +7,4 @@ export { default as LocationInput } from "./LocationInput";
 export { default as DateInput } from "./DateInput";
 export { default as GroupMenu } from "./GroupMenu";
 export { default as CommentInput } from "./CommentInput";
+export { default as NarrativeInput } from "./NarrativeInput";

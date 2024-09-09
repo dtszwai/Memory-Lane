@@ -2,6 +2,7 @@ import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { auth } from "@/src/firebase";
 import { CloudStorage } from "@/src/storage";
+import { readAsStringAsync } from "expo-file-system";
 
 const useImage = () => {
   const [status, requestPermission] = ImagePicker.useCameraPermissions();
@@ -76,7 +77,31 @@ const useImage = () => {
     }
   };
 
-  return { takeImage, selectImage, uploadImage, image, errorMsg, isLoading };
+  const getBase64 = async (imageUrl: string) => {
+    setIsLoading(true);
+    try {
+      const result = await readAsStringAsync(imageUrl, { encoding: "base64" });
+      if (!result) {
+        throw new Error("Failed to convert image to base64");
+      }
+      return `data:image/jpeg;base64,${result}`;
+    } catch (error) {
+      setErrorMsg("Failed to convert image to base64");
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    takeImage,
+    selectImage,
+    uploadImage,
+    getBase64,
+    image,
+    errorMsg,
+    isLoading,
+  };
 };
 
 export default useImage;
